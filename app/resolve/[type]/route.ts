@@ -8,31 +8,6 @@ const ALLOWED_IMAGE_TYPES = new Set(['poster', 'backdrop', 'logo']);
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const tmdbFindCache = new Map<string, Promise<any>>();
 
-const getPublicRequestUrl = (request: NextRequest) => {
-  const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host');
-  if (!forwardedHost) return request.nextUrl;
-  const protoHeader = request.headers.get('x-forwarded-proto');
-  const forwardedPort = request.headers.get('x-forwarded-port')?.split(',')[0].trim();
-  const proto = (protoHeader?.split(',')[0].trim() || request.nextUrl.protocol.replace(':', '')).toLowerCase();
-  const hostValue = forwardedHost.split(',')[0].trim();
-  const url = new URL(request.nextUrl.toString());
-  url.protocol = `${proto}:`;
-  if (forwardedPort) {
-    const hostname = hostValue.replace(/:\d+$/, '');
-    const isDefaultPort =
-      (proto === 'https' && forwardedPort === '443') ||
-      (proto === 'http' && forwardedPort === '80');
-    url.host = isDefaultPort ? hostname : `${hostname}:${forwardedPort}`;
-  } else {
-    const shouldStripPort =
-      (proto === 'https' && /:443$/.test(hostValue)) ||
-      (proto === 'http' && /:80$/.test(hostValue)) ||
-      (proto === 'https' && /:7860$/.test(hostValue));
-    url.host = shouldStripPort ? hostValue.replace(/:\d+$/, '') : hostValue;
-  }
-  return url;
-};
-
 const resolveTypeHint = (value: string | null): 'movie' | 'tv' | null => {
   if (!value) return null;
   const normalized = value.trim().toLowerCase();
@@ -169,8 +144,8 @@ export async function GET(
     return NextResponse.json({ error: 'No supported ID found in query string.' }, { status: 400 });
   }
 
-  const publicRequestUrl = getPublicRequestUrl(request);
-  const targetUrl = new URL(`/${type}/${encodeURIComponent(resolvedId)}.jpg`, publicRequestUrl.origin);
+  const targetPath = `/${type}/${encodeURIComponent(resolvedId)}.jpg`;
+  const targetSearchParams = new URLSearchParams();
   for (const [key, value] of request.nextUrl.searchParams.entries()) {
     if (
       key === 'imdb' ||
@@ -193,8 +168,17 @@ export async function GET(
     ) {
       continue;
     }
-    targetUrl.searchParams.append(key, value);
+    targetSearchParams.append(key, value);
   }
 
-  return NextResponse.redirect(targetUrl, { status: 307 });
+  const location = targetSearchParams.toString()
+    ? `${targetPath}?${targetSearchParams.toString()}`
+    : targetPath;
+
+  return new NextResponse(null, {
+    status: 307,
+    headers: {
+      location,
+    },
+  });
 }
