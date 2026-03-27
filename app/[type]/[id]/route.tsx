@@ -2632,8 +2632,8 @@ const buildBadgeSvg = ({
     !iconDataUri
       ? ''
       : ratingStyle === 'plain'
-        ? `<image href="${iconDataUri}" x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}" preserveAspectRatio="xMidYMid meet" />`
-        : `<defs><clipPath id="icon-clip">${iconClipPath}</clipPath></defs><image href="${iconDataUri}" x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}" preserveAspectRatio="xMidYMid slice" clip-path="url(#icon-clip)" />${iconBorder}`;
+        ? `<image href="${iconDataUri}" x="${iconX + 1}" y="${iconY + 1}" width="${Math.max(1, iconSize - 2)}" height="${Math.max(1, iconSize - 2)}" preserveAspectRatio="xMidYMid meet" />`
+        : `<defs><clipPath id="icon-clip">${iconClipPath}</clipPath></defs><image href="${iconDataUri}" x="${iconX + 1.5}" y="${iconY + 1.5}" width="${Math.max(1, iconSize - 3)}" height="${Math.max(1, iconSize - 3)}" preserveAspectRatio="xMidYMid meet" clip-path="url(#icon-clip)" />${iconBorder}`;
   const monogramText =
     iconDataUri
       ? ''
