@@ -93,6 +93,9 @@ type HomePageViewDerived = {
   baseUrl: string;
   previewUrl: string;
   proxyUrl: string;
+  currentVersion: string;
+  githubPackageVersion: string | null;
+  repoUrl: string | null;
   previewNotice: string | null;
   canGenerateConfig: boolean;
   canGenerateProxy: boolean;
@@ -221,6 +224,9 @@ export function HomePageView({ refs, state, derived, actions }: HomePageViewProp
     baseUrl,
     previewUrl,
     proxyUrl,
+    currentVersion,
+    githubPackageVersion,
+    repoUrl,
     previewNotice,
     canGenerateConfig,
     canGenerateProxy,
@@ -300,7 +306,22 @@ export function HomePageView({ refs, state, derived, actions }: HomePageViewProp
               <a href="#preview" onClick={handleAnchorClick} className="px-3 py-2 rounded-full hover:text-white hover:bg-white/[0.04] transition-colors">Configurator</a>
               <a href="#proxy" onClick={handleAnchorClick} className="px-3 py-2 rounded-full hover:text-white hover:bg-white/[0.04] transition-colors">Addon Proxy</a>
               <a href="#docs" onClick={handleAnchorClick} className="px-3 py-2 rounded-full hover:text-white hover:bg-white/[0.04] transition-colors">API Docs</a>
-              <a href="https://github.com/realbestia1/erdb" className="ml-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[10px] text-slate-100 hover:bg-white/10 transition-colors">GitHub</a>
+              <div className="ml-2 flex items-center gap-2">
+                <div className={`rounded-full border px-3 py-2 text-[10px] normal-case tracking-normal ${githubPackageVersion && githubPackageVersion !== currentVersion ? 'border-red-500/40 bg-red-500/10 text-red-200' : 'border-white/10 bg-white/[0.04] text-slate-300'}`}>
+                  Current Version: v{currentVersion}
+                </div>
+                {githubPackageVersion && (
+                  <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] text-slate-300 normal-case tracking-normal">
+                    Latest Version: v{githubPackageVersion}
+                  </div>
+                )}
+                <a
+                  href={repoUrl || 'https://github.com/realbestia1/erdb'}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[10px] text-slate-100 hover:bg-white/10 transition-colors"
+                >
+                  GitHub
+                </a>
+              </div>
             </div>
           </div>
         </nav>

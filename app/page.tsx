@@ -513,6 +513,9 @@ export default function Home() {
   const [showProxyUrl, setShowProxyUrl] = useState(false);
   const [aiometadataCopiedType, setAiometadataCopiedType] = useState<AiometadataPatternType | null>(null);
   const [aiometadataEpisodeProvider, setAiometadataEpisodeProvider] = useState<AiometadataEpisodeProvider>('realimdb');
+  const [currentVersion, setCurrentVersion] = useState('0.1.0');
+  const [githubPackageVersion, setGithubPackageVersion] = useState<string | null>(null);
+  const [repoUrl, setRepoUrl] = useState<string | null>(null);
   const [exportStatus, setExportStatus] = useState<'idle' | 'with' | 'without'>('idle');
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [importMessage, setImportMessage] = useState('');
@@ -587,6 +590,31 @@ export default function Home() {
       safeLocalStorageRemove(SIMKL_CLIENT_ID_STORAGE_KEY);
     }
   }, [simklClientId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/version', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return await response.json();
+      })
+      .then((payload) => {
+        if (cancelled || !payload || typeof payload !== 'object') return;
+        if (typeof payload.currentVersion === 'string' && payload.currentVersion) {
+          setCurrentVersion(payload.currentVersion);
+        }
+        if (typeof payload.githubPackageVersion === 'string' && payload.githubPackageVersion) {
+          setGithubPackageVersion(payload.githubPackageVersion);
+        }
+        if (typeof payload.repoUrl === 'string' && payload.repoUrl) {
+          setRepoUrl(payload.repoUrl);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const scrollToHash = useCallback((hash: string, behavior: ScrollBehavior = 'smooth') => {
     if (typeof window === 'undefined') return;
@@ -1648,6 +1676,9 @@ Skip any params that are undefined. Keep empty ratings/posterRatings/backdropRat
       baseUrl,
     previewUrl,
     proxyUrl,
+      currentVersion,
+      githubPackageVersion,
+      repoUrl,
       previewNotice,
     canGenerateConfig,
       canGenerateProxy,
