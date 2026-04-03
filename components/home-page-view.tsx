@@ -66,12 +66,11 @@ type HomePageViewState = {
   thumbnailSize: ThumbnailSize;
   qualityBadgesSide: QualityBadgesSide;
   posterQualityBadgesPosition: PosterQualityBadgesPosition;
+  configCopied: boolean;
   proxyCopied: boolean;
   copied: boolean;
   aiometadataCopiedType: AiometadataPatternType | null;
   aiometadataEpisodeProvider: AiometadataEpisodeProvider;
-  activeToken: string | null;
-  configSaveStatus: 'idle' | 'saving' | 'saved' | 'error';
 };
 
 type HomePageViewDerived = {
@@ -82,8 +81,11 @@ type HomePageViewDerived = {
   githubPackageVersion: string | null;
   repoUrl: string | null;
   previewNotice: string | null;
+  canGenerateConfig: boolean;
   canGenerateProxy: boolean;
+  isConfigStringVisible: boolean;
   isProxyUrlVisible: boolean;
+  displayedConfigString: string;
   displayedProxyUrl: string;
   styleLabel: string;
   textLabel: string;
@@ -104,6 +106,7 @@ type HomePageViewActions = {
   handleExportConfig: (includeKeys: boolean) => void;
   handleImportFile: (event: ChangeEvent<HTMLInputElement>) => void;
   handleImportConfigString: (value: string) => void;
+  handleCopyConfig: () => void;
   handleCopyProxy: () => void;
   handleCopyPrompt: () => void;
   handleCopyAiometadataPattern: (type: AiometadataPatternType) => void;
@@ -149,9 +152,8 @@ type HomePageViewActions = {
   resetProxyCatalogCustomizations: () => void;
   toggleProxyEnabledType: (type: ProxyType) => void;
   toggleProxyTranslateMeta: () => void;
+  toggleConfigStringVisibility: () => void;
   toggleProxyUrlVisibility: () => void;
-  handleTokenDisconnect: () => void;
-  handleSaveConfig: () => void;
 };
 
 export type HomePageViewProps = {
@@ -246,11 +248,11 @@ export function HomePageView({ refs, derived }: HomePageViewProps) {
               <div className="flex flex-wrap gap-4 text-xs text-slate-400">
                 <div className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-teal-300" />
-                  Token-based workspace access
+                  No accounts or tokens
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-orange-300" />
-                  Saved server-side layouts
+                  Query-driven layouts
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-sky-300" />
@@ -276,7 +278,7 @@ export function HomePageView({ refs, derived }: HomePageViewProps) {
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-[#0b0f15]/80 p-4">
                     <div className="text-xs text-slate-400">Live Output</div>
-                    <div className="mt-1 text-sm font-semibold text-white">Preview, proxy URL, and AiOMetadata patterns in one workspace</div>
+                    <div className="mt-1 text-sm font-semibold text-white">Preview, config string, and proxy URL in one workspace</div>
                   </div>
                 </div>
               </div>
