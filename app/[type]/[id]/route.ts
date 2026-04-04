@@ -6451,43 +6451,55 @@ export async function GET(
           phases,
         });
         if (!mappedTmdbId) {
-          const directFallback = await fetchNativeAnimeDirectFallbackAsset({
+          let usedNoTmdbFallback = false;
+          const kitsuIdNoTmdb = await fetchKitsuIdFromReverseMapping({
             provider: inputAnimeMappingProvider,
             externalId: inputAnimeMappingExternalId,
-            imageType,
-            logoMode,
-            logoFontVariant,
-            logoPrimary,
-            logoSecondary,
-            logoOutline,
+            season,
             phases,
           });
-          const usedDirect =
-            !!directFallback &&
-            applyAnimeCdnFallback(
-              {
-                imageUrl: directFallback.imageUrl,
-                rating: directFallback.rating,
-                title: directFallback.title,
-                logoAspectRatio: directFallback.logoAspectRatio,
-              },
-              directFallback.ratingProvider
+          if (kitsuIdNoTmdb) {
+            const kitsuFallbackAsset = await fetchKitsuFallbackAsset(
+              kitsuIdNoTmdb,
+              imageType,
+              logoMode,
+              logoFontVariant,
+              logoPrimary,
+              logoSecondary,
+              logoOutline,
+              phases
             );
-          if (!usedDirect) {
-            const kitsuId = await fetchKitsuIdFromReverseMapping({
+            usedNoTmdbFallback = applyAnimeCdnFallback(kitsuFallbackAsset, 'kitsu');
+          }
+          if (!usedNoTmdbFallback) {
+            const directFallback = await fetchNativeAnimeDirectFallbackAsset({
               provider: inputAnimeMappingProvider,
               externalId: inputAnimeMappingExternalId,
-              season,
+              imageType,
+              logoMode,
+              logoFontVariant,
+              logoPrimary,
+              logoSecondary,
+              logoOutline,
               phases,
             });
-            if (!kitsuId) {
-              throw new HttpError('TMDB ID not found for anime mapping ID', 404);
+            if (
+              directFallback &&
+              applyAnimeCdnFallback(
+                {
+                  imageUrl: directFallback.imageUrl,
+                  rating: directFallback.rating,
+                  title: directFallback.title,
+                  logoAspectRatio: directFallback.logoAspectRatio,
+                },
+                directFallback.ratingProvider
+              )
+            ) {
+              usedNoTmdbFallback = true;
             }
-
-            const kitsuFallbackAsset = await fetchKitsuFallbackAsset(kitsuId, imageType, logoMode, logoFontVariant, logoPrimary, logoSecondary, logoOutline, phases);
-            if (!applyAnimeCdnFallback(kitsuFallbackAsset, 'kitsu')) {
-              throw new HttpError('TMDB ID not found for anime mapping ID', 404);
-            }
+          }
+          if (!usedNoTmdbFallback) {
+            throw new HttpError('TMDB ID not found for anime mapping ID', 404);
           }
         } else {
           const tvResponse = await fetchJsonCached(
@@ -6542,38 +6554,51 @@ export async function GET(
           }
 
           if (!media) {
-            const directFallback = await fetchNativeAnimeDirectFallbackAsset({
+            let usedTmdbFailFallback = false;
+            const kitsuIdAfterTmdbFail = await fetchKitsuIdFromReverseMapping({
               provider: inputAnimeMappingProvider,
               externalId: inputAnimeMappingExternalId,
-              imageType,
-              logoMode,
-              logoFontVariant,
-              logoPrimary,
-              logoSecondary,
-              logoOutline,
+              season,
               phases,
             });
-            const usedDirect =
-              !!directFallback &&
-              applyAnimeCdnFallback(
-                {
-                  imageUrl: directFallback.imageUrl,
-                  rating: directFallback.rating,
-                  title: directFallback.title,
-                  logoAspectRatio: directFallback.logoAspectRatio,
-                },
-                directFallback.ratingProvider
+            if (kitsuIdAfterTmdbFail) {
+              const kitsuFallbackAsset = await fetchKitsuFallbackAsset(
+                kitsuIdAfterTmdbFail,
+                imageType,
+                logoMode,
+                logoFontVariant,
+                logoPrimary,
+                logoSecondary,
+                logoOutline,
+                phases
               );
-            if (!usedDirect) {
-              const kitsuId = await fetchKitsuIdFromReverseMapping({
+              usedTmdbFailFallback = applyAnimeCdnFallback(kitsuFallbackAsset, 'kitsu');
+            }
+            if (!usedTmdbFailFallback) {
+              const directFallback = await fetchNativeAnimeDirectFallbackAsset({
                 provider: inputAnimeMappingProvider,
                 externalId: inputAnimeMappingExternalId,
-                season,
+                imageType,
+                logoMode,
+                logoFontVariant,
+                logoPrimary,
+                logoSecondary,
+                logoOutline,
                 phases,
               });
-              if (kitsuId) {
-                const kitsuFallbackAsset = await fetchKitsuFallbackAsset(kitsuId, imageType, logoMode, logoFontVariant, logoPrimary, logoSecondary, logoOutline, phases);
-                applyAnimeCdnFallback(kitsuFallbackAsset, 'kitsu');
+              if (
+                directFallback &&
+                applyAnimeCdnFallback(
+                  {
+                    imageUrl: directFallback.imageUrl,
+                    rating: directFallback.rating,
+                    title: directFallback.title,
+                    logoAspectRatio: directFallback.logoAspectRatio,
+                  },
+                  directFallback.ratingProvider
+                )
+              ) {
+                usedTmdbFailFallback = true;
               }
             }
           }
