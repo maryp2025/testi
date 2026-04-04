@@ -9,6 +9,27 @@ ERDB generates poster/backdrop/logo/thumbnail images with dynamic ratings on-the
 
 [![Support on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/realbestia)
 
+## Examples
+
+<p align="center">
+  <img src="./assets/poster1.webp" alt="ERDB poster example 1" width="24%" />
+  <img src="./assets/poster2.webp" alt="ERDB poster example 2" width="24%" />
+  <img src="./assets/poster3.webp" alt="ERDB poster example 3" width="24%" />
+  <img src="./assets/poster4.webp" alt="ERDB poster example 4" width="24%" />
+</p>
+
+<p align="center">
+  <img src="./assets/backdrop1.webp" alt="ERDB backdrop example 1" width="24%" />
+  <img src="./assets/backdrop2.webp" alt="ERDB backdrop example 2" width="24%" />
+  <img src="./assets/backdrop3.webp" alt="ERDB backdrop example 3" width="24%" />
+  <img src="./assets/backdrop4.webp" alt="ERDB backdrop example 4" width="24%" />
+</p>
+
+<p align="center">
+  <img src="./assets/logo.png" alt="ERDB logo example" width="49%" />
+  <img src="./assets/thumbnail.webp" alt="ERDB thumbnail example" width="49%" />
+</p>
+
 <details>
 <summary>Click to view Self-Hosting Instructions (Docker / Local)</summary>
 
